@@ -1,3 +1,7 @@
+# Prompt service files
+services/prompts/
+
+
 # Logs
 
 logs
