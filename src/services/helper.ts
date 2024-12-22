@@ -32,3 +32,19 @@ export function isArticleLengthValid(articleText: string): boolean {
     const maxArticleLength = 80000
     return articleText.length < minArticleLength || articleText.length > maxArticleLength
 }
+
+
+
+
+export function getErrorMessage(error: unknown): string {
+    if (error instanceof Error) {
+      return error.message;
+    }
+    if (typeof error === 'string') {
+      return error;
+    }
+    if (error && typeof error === 'object' && 'message' in error) {
+      return String(error.message);
+    }
+    return String(error);
+}

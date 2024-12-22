@@ -1,4 +1,5 @@
 import { REDIS_RATE_LIMIT_DATABASES } from "./rateLimit";
+import { getErrorMessage } from "./helper";
 
 const CONTINENTS = {
     EUROPE: "Europe",
@@ -146,7 +147,7 @@ export const getClosestRateLimitDatabase = (timeZone: string, country: string): 
             throw new Error(`Unknown location: ${continent}-${country}-${location}`)
         }
     } catch (error) {
-        console.error({ event: 'failed_to_get_closest_rate_limit_database', error: error, country: country, timeZone: timeZone });
+        console.error({ event: 'failed_to_get_closest_rate_limit_database', error: getErrorMessage(error), country: country, timeZone: timeZone });
         return REDIS_RATE_LIMIT_DATABASES.VIRGINIA
     }
 

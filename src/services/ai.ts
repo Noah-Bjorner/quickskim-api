@@ -1,3 +1,4 @@
+import { getErrorMessage } from "./helper";
 import { getArticleQuickSkimPrompt } from "./prompts";
 
 interface QuickSkimParams {
@@ -15,6 +16,6 @@ export async function generateQuickSkim({ env, articleText }: QuickSkimParams) {
 			temperature: 0.2,
 		});
     } catch (error) {
-        throw new Error(`generateQuickSkim error: ${error}`);
+        throw new Error(`generateQuickSkim error: ${getErrorMessage(error)}`);
     }
 }

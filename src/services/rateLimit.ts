@@ -4,6 +4,7 @@ import { Context } from "hono";
 import { Env } from "../index";
 
 import { getClosestRateLimitDatabase } from "./countries";
+import { getErrorMessage } from "./helper";
 
 export enum REDIS_RATE_LIMIT_DATABASES {
     VIRGINIA = 'Virginia',
@@ -100,7 +101,7 @@ export async function rateLimit(
 
         return success;
     } catch (error) {
-        console.error({ event: 'failed_to_rate_limit', error: error });
+        console.error({ event: 'failed_to_rate_limit', error: getErrorMessage(error) });
         return false;
     }
 }

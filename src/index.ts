@@ -6,7 +6,7 @@ import { createLoggingStream } from './services/stream'
 import { getCachedQuickSkim } from './services/cache'
 import { rateLimitMiddleware } from './services/rateLimit'
 import { allowedCountriesMiddleware } from './services/allowedCountries'
-import { isArticleLengthValid } from './services/helper'
+import { isArticleLengthValid, getErrorMessage } from './services/helper'
 
 export interface Env {
   AI: Ai;
@@ -80,7 +80,7 @@ app.post('/article', async (c) => {
 
 		const isValid = isArticleLengthValid(articleText)
 		if (!isValid) {
-			throw new Error('Article too long')
+			throw new Error(`Article duration is invalid ${articleText.length}`)
 		}
 
 		const generatedStream = await generateQuickSkim({ env: c.env, articleText })
@@ -94,7 +94,7 @@ app.post('/article', async (c) => {
 		});
 		
 	} catch (error) {
-		console.error({ event: 'failed_to_process_article', error: error });
+		console.error({ event: 'failed_to_process_article', error: getErrorMessage(error) });
 		return c.json({ error: 'Failed to process article' }, 500);
 	}
 })
