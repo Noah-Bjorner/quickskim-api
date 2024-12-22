@@ -1,5 +1,6 @@
 import { cacheQuickSkim } from "./cache"
 import { Env } from "../index";
+import { getErrorMessage } from "./helper";
 
 
 export async function createLoggingStream(originalStream: any, url: string, env: Env) {
@@ -17,7 +18,7 @@ export async function createLoggingStream(originalStream: any, url: string, env:
             completeResponse += jsonData.response;
           }
         } catch (e) {
-          console.error({ event: 'failed_to_parse_chunk', error: e });
+          console.error({ event: 'failed_to_parse_chunk', error: getErrorMessage(e) });
         }
       }
       
