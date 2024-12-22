@@ -28,9 +28,9 @@ export function isValidQuickSkimResponse(html: string): boolean {
 
 
 export function isArticleLengthValid(articleText: string): boolean {
-    const minArticleLength = 1000
+    const minArticleLength = 700
     const maxArticleLength = 80000
-    return articleText.length < minArticleLength || articleText.length > maxArticleLength
+    return articleText.length > minArticleLength && articleText.length < maxArticleLength
 }
 
 
