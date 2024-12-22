@@ -30,7 +30,7 @@ export interface Env {
 const app = new Hono<{ Bindings: Env }>()
 
 app.use('/*', cors({
-  origin: ['chrome-extension://mhbjpenikhkdikjeeboebjoalkpkhjme'],
+  origin: ['chrome-extension://*'],
   allowMethods: ['POST', 'GET', 'OPTIONS'],
   allowHeaders: ['Content-Type'],
   exposeHeaders: [
