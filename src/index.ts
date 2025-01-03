@@ -1,12 +1,14 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 
-import { generateQuickSkim } from './services/ai'
+import { generateArticleQuickSkim, generateYouTubeQuickSkim } from './services/ai'
 import { createLoggingStream } from './services/stream'
 import { getCachedQuickSkim } from './services/cache'
 import { rateLimitMiddleware } from './services/rateLimit'
 import { allowedCountriesMiddleware } from './services/allowedCountries'
 import { isArticleLengthValid, getErrorMessage } from './services/helper'
+import { getCaptions } from './services/youtube'
+
 
 export interface Env {
   AI: Ai;
@@ -58,7 +60,6 @@ app.use('/*', rateLimitMiddleware({
 
 
 
-
 app.get('/ping', (c) => {
 	return c.text('pong', 200)
 })
@@ -83,7 +84,7 @@ app.post('/article', async (c) => {
 			throw new Error(`Article duration is invalid ${articleText.length}`)
 		}
 
-		const generatedStream = await generateQuickSkim({ env: c.env, articleText })
+		const generatedStream = await generateArticleQuickSkim({ env: c.env, text: articleText })
 		const loggingStream = await createLoggingStream(generatedStream, url, c.env)
 		console.log({ event: LOG_EVENT_NAME, cache_status: 'MISS', url: url, article_length: articleText.length });
 		return new Response(loggingStream, {
@@ -101,6 +102,42 @@ app.post('/article', async (c) => {
 
 
 
+// 1. Make work first then improve and add cache and logs etc
+
+app.post('/youtube', async (c) => {
+	const { url } = await c.req.json()
+	const LOG_EVENT_NAME = 'youtube_response'
+
+	try {
+		const cachedContent = await getCachedQuickSkim(url, c.env)
+		if (cachedContent) {
+			console.log({ event: LOG_EVENT_NAME, cache_status: 'HIT', url: url });
+			return c.json(
+				{ content: cachedContent }, 
+				{ headers: { "X-Cache-Status": "HIT" }}
+			)
+		}
+
+		const captions = await getCaptions(url)
+		if (!captions) {
+			throw new Error(`Failed to fetch captions`)
+		}
+
+		const generatedStream = await generateYouTubeQuickSkim({ env: c.env, text: captions })
+		const loggingStream = await createLoggingStream(generatedStream, url, c.env)
+		console.log({ event: LOG_EVENT_NAME, cache_status: 'MISS', url: url });
+		return new Response(loggingStream, {
+			headers: { 
+				"content-type": "text/event-stream", 
+				"X-Cache-Status": "MISS"
+			},
+		});
+
+	} catch (error) {
+		console.error({ event: 'failed_to_process_youtube', error: getErrorMessage(error) })
+		return c.json({ error: 'Failed to process YouTube video' }, 500)
+	}
+})
 
 
 export default app
