@@ -2,7 +2,7 @@ import { Env } from "../index";
 import { getErrorMessage } from "./helper";
 
 
-export async function getCaptions(url: string, env: Env): Promise<string> {
+export async function getCaptions(url: string, env: Env): Promise<{captions: string, url: string}> {
   try {
 
     const apiUrl = env.YOUTUBE_API_ENDPOINT_URL;
@@ -28,7 +28,7 @@ export async function getCaptions(url: string, env: Env): Promise<string> {
       throw new Error(`status: ${response.status} url: ${url}`);
     }
 
-    return captions;
+    return {captions: captions, url: cleanUrl};
   } catch (error) {
     throw new Error(`getCaptions failed: ${getErrorMessage(error)}`);
   }

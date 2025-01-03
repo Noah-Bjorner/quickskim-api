@@ -79,9 +79,9 @@ app.post('/article', async (c) => {
 app.post('/youtube', async (c) => {
 	try {
 		const { url } = await c.req.json();
-		const captions = await getCaptions(url, c.env);
+		const { captions, url: cleanUrl} = await getCaptions(url, c.env);
 		return handleQuickSkimRequest(c, {
-			url,
+			url: cleanUrl,
 			text: captions,
 			logEventName: 'youtube_response',
 			generateFunction: generateYouTubeQuickSkim
