@@ -4,7 +4,7 @@ import { getErrorMessage } from "./helper";
 export async function getCaptions(url: string, env: Env): Promise<string> {
   try {
 
-    const apiUrl = 'https://youtube-noahbjorner-com.deno.dev/captions';
+    const apiUrl = env.YOUTUBE_API_ENDPOINT_URL;
     const passkey = env.YOUTUBE_API_PASSKEY
 
     const params = new URLSearchParams({
