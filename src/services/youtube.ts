@@ -1,7 +1,6 @@
 import { Env } from "../index";
 import { getErrorMessage } from "./helper";
 
-// maybe get youtube video id here so I can use it in cache also?
 
 export async function getCaptions(url: string, env: Env): Promise<string> {
   try {
