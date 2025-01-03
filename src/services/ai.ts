@@ -1,7 +1,7 @@
 import { getErrorMessage } from "./helper";
 import { getArticleQuickSkimPrompt, getYouTubeQuickSkimPrompt } from "./prompts";
 
-interface QuickSkimParams {
+export interface QuickSkimParams {
     env: Env;
     text: string;
 }
