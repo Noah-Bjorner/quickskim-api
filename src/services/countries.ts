@@ -127,11 +127,11 @@ export const getClosestRateLimitDatabase = (timeZone: string, country: string): 
 
         if (country === COUNTRIES.UNITED_STATES) {
             const westLocations = ["Los_Angeles", "Denver", "San_Francisco", "Seattle", "Portland", "Phoenix", "Las_Vegas", "Boise"]
-            const eastLocations = ["New_York", "Chicago", "Miami", "Atlanta", "Boston", "Detroit", "Washington"]
+            //const eastLocations = ["New_York", "Chicago", "Miami", "Atlanta", "Boston", "Detroit", "Washington"]
             return westLocations.includes(location) ? REDIS_RATE_LIMIT_DATABASES.CALIFORNIA : REDIS_RATE_LIMIT_DATABASES.VIRGINIA
         } else if (country === COUNTRIES.CANADA) {
             const westLocations = ["Vancouver", "Calgary", "Edmonton", "Victoria", "Whitehorse", "Yellowknife", "Regina", "Saskatoon"]
-            const eastLocations = ["Toronto", "Montreal", "Ottawa", "Quebec", "Halifax", "Winnipeg", "St_Johns", "Moncton", "Iqaluit"]
+            //const eastLocations = ["Toronto", "Montreal", "Ottawa", "Quebec", "Halifax", "Winnipeg", "St_Johns", "Moncton", "Iqaluit"]
             return westLocations.includes(location) ? REDIS_RATE_LIMIT_DATABASES.CALIFORNIA : REDIS_RATE_LIMIT_DATABASES.VIRGINIA
         } else if (continent === CONTINENTS.EUROPE) {
             return REDIS_RATE_LIMIT_DATABASES.GERMANY

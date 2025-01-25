@@ -4,35 +4,16 @@ import { cors } from 'hono/cors'
 import { generateArticleQuickSkim, generateYouTubeQuickSkim } from './services/ai'
 import { rateLimitMiddleware } from './services/rateLimit'
 import { allowedCountriesMiddleware } from './services/allowedCountries'
-import { getCaptions } from './services/youtube'
+import { allowedAPIKeyMiddleware } from './services/apiKey'
+import { cleanYoutubeUrl, getCaptions } from './services/youtube'
 import { handleQuickSkimRequest } from './services/logic'
-
-
-export interface Env {
-  AI: Ai;
-  UPSTASH_REDIS_REST_URL: string;
-  UPSTASH_REDIS_REST_TOKEN: string;
-  UPSTASH_REDIS_RATE_LIMIT_VIRGINIA_REST_URL: string;
-  UPSTASH_REDIS_RATE_LIMIT_VIRGINIA_REST_TOKEN: string;
-  UPSTASH_REDIS_RATE_LIMIT_CALIFORNIA_REST_URL: string;
-  UPSTASH_REDIS_RATE_LIMIT_CALIFORNIA_REST_TOKEN: string;
-  UPSTASH_REDIS_RATE_LIMIT_AUSTRALIA_REST_URL: string;
-  UPSTASH_REDIS_RATE_LIMIT_AUSTRALIA_REST_TOKEN: string;
-  UPSTASH_REDIS_RATE_LIMIT_BRAZIL_REST_URL: string;
-  UPSTASH_REDIS_RATE_LIMIT_BRAZIL_REST_TOKEN: string;
-  UPSTASH_REDIS_RATE_LIMIT_JAPAN_REST_URL: string;
-  UPSTASH_REDIS_RATE_LIMIT_JAPAN_REST_TOKEN: string;
-  UPSTASH_REDIS_RATE_LIMIT_GERMANY_REST_URL: string;
-  UPSTASH_REDIS_RATE_LIMIT_GERMANY_REST_TOKEN: string;
-  YOUTUBE_API_PASSKEY: string;
-  YOUTUBE_API_ENDPOINT_URL: string;
-}
-
 
 const app = new Hono<{ Bindings: Env }>()
 
+// prod test it so all works well...
+
 app.use('/*', cors({
-  origin: ['chrome-extension://*'],
+  origin: '*',
   allowMethods: ['POST', 'GET', 'OPTIONS'],
   allowHeaders: ['Content-Type'],
   exposeHeaders: [
@@ -46,14 +27,17 @@ app.use('/*', cors({
 	'X-RateLimit-Policy',
 	'X-RateLimit-Database',
 	'X-Country',
+	'X-API-Key',
 	],
   credentials: true,
 }))
 
 app.use('/*', allowedCountriesMiddleware());
 
+app.use('/*', allowedAPIKeyMiddleware());
+
 app.use('/*', rateLimitMiddleware({
-    requests: 5,
+    requests: 50, // set 6 requests per minute later
     window: 60
 }));
 
@@ -69,22 +53,25 @@ app.post('/article', async (c) => {
 			url,
 			text: articleText,
 			logEventName: 'article_response',
-			generateFunction: generateArticleQuickSkim
+			generateFunction: generateArticleQuickSkim,
+			getContent: undefined
 		});
 	} catch {
 		return c.json({ error: 'article_response_unexpect_error' }, 500);
 	}
 });
 
+
 app.post('/youtube', async (c) => {
 	try {
 		const { url } = await c.req.json();
-		const { captions, url: cleanUrl} = await getCaptions(url, c.env);
+		const cleanUrl = cleanYoutubeUrl(url)
 		return handleQuickSkimRequest(c, {
 			url: cleanUrl,
-			text: captions,
+			text: undefined,
 			logEventName: 'youtube_response',
-			generateFunction: generateYouTubeQuickSkim
+			generateFunction: generateYouTubeQuickSkim,
+			getContent: getCaptions
 		});
 	} catch {
 		return c.json({ error: 'youtube_response_unexpect_error' }, 500);

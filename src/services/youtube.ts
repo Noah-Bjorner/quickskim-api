@@ -1,42 +1,40 @@
-import { Env } from "../index";
 import { getErrorMessage } from "./helper";
 
+export interface GetContentParams {
+    env: Env;
+    url: string;
+}
 
-export async function getCaptions(url: string, env: Env): Promise<{captions: string, url: string}> {
-  try {
+export async function getCaptions({ env, url }: GetContentParams): Promise<string> {
+    try {
+        console.log({ event: 'get_captions_request', url });
+        const apiUrl = env.YOUTUBE_API_ENDPOINT_URL;
+        const passkey = env.YOUTUBE_API_PASSKEY
 
-    const apiUrl = env.YOUTUBE_API_ENDPOINT_URL;
-    const passkey = env.YOUTUBE_API_PASSKEY
-    const cleanUrl = cleanYoutubeUrl(url)
+        const params = new URLSearchParams({
+            passkey,
+            url
+        });
 
-    const params = new URLSearchParams({
-        passkey,
-        url: cleanUrl
-    });
+        const response = await fetch(`${apiUrl}?${params}`);
+        
+        if (!response.ok) throw new Error(`Failed to fetch captions -> status: ${response.status} url: ${url}`);
 
-    const response = await fetch(`${apiUrl}?${params}`);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch captions -> status: ${response.status} url: ${url}`);
+        const data = await response.json() as { captions: string };
+
+        const captions = data.captions
+
+        if (!captions) throw new Error(`status: ${response.status} url: ${url}`);
+
+        return captions;
+    } catch (error) {
+        throw new Error(`getCaptions failed: ${getErrorMessage(error)}`);
     }
-
-    const data = await response.json() as { captions: string };
-
-    const captions = data.captions
-
-    if (!captions) {
-      throw new Error(`status: ${response.status} url: ${url}`);
-    }
-
-    return {captions: captions, url: cleanUrl};
-  } catch (error) {
-    throw new Error(`getCaptions failed: ${getErrorMessage(error)}`);
-  }
 }
 
 
 
-function cleanYoutubeUrl(url: string): string {
+export function cleanYoutubeUrl(url: string): string {
     try {
         const urlObj = new URL(url);
         const videoId = urlObj.searchParams.get('v');

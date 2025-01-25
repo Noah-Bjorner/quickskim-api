@@ -1,3 +1,5 @@
+import { OUTPUT_SECTION_CLASS } from "./prompts";
+  
 export function cleanHtmlString(htmlString: string): string {
     return htmlString
       // Convert escaped quotes back to regular quotes
@@ -15,7 +17,7 @@ export function cleanHtmlString(htmlString: string): string {
 
 
 export function isValidQuickSkimResponse(html: string): boolean {
-    const outputSections = html.match(/<div class="output-section">(.*?)<\/div>/gs);
+    const outputSections = html.match(new RegExp(`<div class="${OUTPUT_SECTION_CLASS}">(.*?)</div>`, 'gs'));
 
     if (!outputSections || outputSections.length !== 2) return false;
     

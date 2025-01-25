@@ -1,7 +1,6 @@
 import { Redis } from "@upstash/redis/cloudflare";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Context } from "hono";
-import { Env } from "../index";
 
 import { getClosestRateLimitDatabase } from "./countries";
 import { getErrorMessage } from "./helper";

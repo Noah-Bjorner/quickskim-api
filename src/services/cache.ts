@@ -1,5 +1,4 @@
 import { Redis } from "@upstash/redis/cloudflare";
-import { Env } from "../index";
 import { cleanHtmlString, getErrorMessage, isValidQuickSkimResponse } from "./helper"
 
 const redis = (env: Env) => Redis.fromEnv(env);

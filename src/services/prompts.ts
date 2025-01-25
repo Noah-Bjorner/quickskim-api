@@ -1,15 +1,17 @@
+export const OUTPUT_SECTION_CLASS = "quickskim-output-section";
+
 export const getArticleQuickSkimPrompt = (articleText: string) => {
     return [
 		{ role: "system", content: `You are a reading assistant who creates informative and concise article reports. Format your response strictly using the following HTML structure:
 
-            <div class="output-section">
+            <div class="${OUTPUT_SECTION_CLASS}">
                 <h2>Summary</h2>
                 <p>
                     [Provide a concise summary that begins directly with the subject matter in 1-3 succinct sentences. For example: 'The rise of plastics in the 1950s...' rather than 'The article discusses the rise of plastics...' or 'The author discusses the rise of plastics...']
                 </p>
             </div>
 
-            <div class="output-section">
+            <div class="${OUTPUT_SECTION_CLASS}">
                 <h2>Breakdown</h2>
                 <ul>
                     <li>[Concise bullet point that is written as brief and to-the-point as possible]</li>
@@ -39,14 +41,14 @@ export const getYouTubeQuickSkimPrompt = (captions: string) => {
     return [
         { role: "system", content: `You are a reading assistant who creates informative and concise video summaries from YouTube transcripts. Format your response strictly using the following HTML structure:
 
-            <div class="output-section">
+            <div class="${OUTPUT_SECTION_CLASS}">
                 <h2>Summary</h2>
                 <p>
                     [Provide a concise summary that begins directly with the subject matter in 1-3 succinct sentences. For example: 'The rise of plastics in the 1950s...' rather than 'The video discusses the rise of plastics...' or 'The speaker discusses the rise of plastics...']
                 </p>
             </div>
 
-            <div class="output-section">
+            <div class="${OUTPUT_SECTION_CLASS}">
                 <h2>Breakdown</h2>
                 <ul>
                     <li>[Concise bullet point that is written as brief and to-the-point as possible]</li>
