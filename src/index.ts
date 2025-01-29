@@ -1,21 +1,31 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 
-import { generateArticleQuickSkim, generateYouTubeQuickSkim } from './services/ai'
+import { generateArticleQuickSkim, generateYouTubeQuickSkim, testAISummarize } from './services/ai'
 import { rateLimitMiddleware } from './services/rateLimit'
 import { allowedCountriesMiddleware } from './services/allowedCountries'
 import { allowedAPIKeyMiddleware } from './services/apiKey'
 import { cleanYoutubeUrl, getCaptions } from './services/youtube'
 import { handleQuickSkimRequest } from './services/logic'
 
+
 const app = new Hono<{ Bindings: Env }>()
 
-// prod test it so all works well...
 
 app.use('/*', cors({
   origin: '*',
-  allowMethods: ['POST', 'GET', 'OPTIONS'],
-  allowHeaders: ['Content-Type'],
+  allowMethods: [
+	'POST',
+	'GET',
+	'OPTIONS'
+  ],
+  allowHeaders: [
+	'Content-Type',
+	'X-API-Key',
+	'X-LLM-Provider',
+	'X-Cache-Status',
+	'X-Country',
+  ],
   exposeHeaders: [
 	'Content-Type', 
 	'X-Cache-Status', 
@@ -37,13 +47,19 @@ app.use('/*', allowedCountriesMiddleware());
 app.use('/*', allowedAPIKeyMiddleware());
 
 app.use('/*', rateLimitMiddleware({
-    requests: 50, // set 6 requests per minute later
+    requests: 8,
     window: 60
 }));
 
 
 
 app.get('/health', (c) => c.text('healthy', 200))
+
+
+app.get('/test', async (c) => {
+	const { llmProvider } = await c.req.json();
+	return await testAISummarize(c.env, llmProvider);
+});
 
 
 app.post('/article', async (c) => {
@@ -54,7 +70,8 @@ app.post('/article', async (c) => {
 			text: articleText,
 			logEventName: 'article_response',
 			generateFunction: generateArticleQuickSkim,
-			getContent: undefined
+			getContent: undefined,
+			llmProvider: 'deepInfra'
 		});
 	} catch {
 		return c.json({ error: 'article_response_unexpect_error' }, 500);
@@ -71,7 +88,8 @@ app.post('/youtube', async (c) => {
 			text: undefined,
 			logEventName: 'youtube_response',
 			generateFunction: generateYouTubeQuickSkim,
-			getContent: getCaptions
+			getContent: getCaptions,
+			llmProvider: 'deepInfra'
 		});
 	} catch {
 		return c.json({ error: 'youtube_response_unexpect_error' }, 500);

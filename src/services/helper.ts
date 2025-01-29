@@ -17,12 +17,12 @@ export function cleanHtmlString(htmlString: string): string {
 
 
 export function isValidQuickSkimResponse(html: string): boolean {
+    if (html.startsWith('```html') || html.endsWith('```')) return false;
+    
     const outputSections = html.match(new RegExp(`<div class="${OUTPUT_SECTION_CLASS}">(.*?)</div>`, 'gs'));
-
     if (!outputSections || outputSections.length !== 2) return false;
     
     const hasSummary = outputSections[0].includes('<p>');
-    
     const bulletPointsCount = (outputSections[1].match(/<li>/g) || []).length;
     
     return hasSummary && bulletPointsCount >= 1 && !html.includes('undefined') && !html.includes('null');

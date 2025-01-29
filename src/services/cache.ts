@@ -30,7 +30,7 @@ export async function cacheQuickSkim(rawResponse: string, url: string, env: Env)
         const cleanedResponse = cleanHtmlString(rawResponse)
         const isValid = isValidQuickSkimResponse(cleanedResponse)
         if (!isValid) {
-            throw new Error("Invalid quick skim response html string")
+            throw new Error(`Invalid quick skim response html string: ${cleanedResponse}`)
         }
         const expirationSeconds = 1814400 //3 weeks in seconds
         await storeInCache(key, cleanedResponse, env, expirationSeconds)

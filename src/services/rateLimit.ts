@@ -106,13 +106,12 @@ export async function rateLimit(
 }
 
 
-// Hono middleware for rate limiting
 export const rateLimitMiddleware = (config?: RateLimitConfig) => {
     return async (c: Context<{ Bindings: Env }>, next: () => Promise<void>) => {
         const isAllowed = await rateLimit(c, config);
         
         if (!isAllowed) {
-            console.error({ event: 'rate_limit_exceeded' });
+            console.error({ event: 'rate_limit_denied', type: 'middleware'});
             return c.json(
                 { error: 'Too many requests' },
                 {

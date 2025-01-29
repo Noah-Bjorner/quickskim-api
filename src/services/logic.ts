@@ -1,12 +1,9 @@
 import { Context } from "hono";
 import { getCachedQuickSkim } from "./cache";
 import { isTextLengthValid, getErrorMessage } from "./helper";
-import { createLoggingStream } from './stream'
 import { QuickSkimParams } from "./ai";
 import { GetContentParams } from "./youtube";
-
-
-
+import { createNormalizedLoggingStream } from "./stream";
 
 interface QuickSkimRequestParams {
     url: string;
@@ -14,11 +11,12 @@ interface QuickSkimRequestParams {
     logEventName: string;
     generateFunction: (params: QuickSkimParams) => Promise<ReadableStream>;
     getContent?: (params: GetContentParams) => Promise<string>;
+    llmProvider: 'workersAI' | 'deepInfra';
 }
 
-export async function handleQuickSkimRequest(c: Context, params: QuickSkimRequestParams) {
+export async function handleQuickSkimRequest(c: Context, params: QuickSkimRequestParams): Promise<Response> {
     
-    const { url, text, logEventName, generateFunction, getContent } = params;
+    const { url, text, logEventName, generateFunction, getContent, llmProvider } = params;
   
     try {
       const cachedContent = await getCachedQuickSkim(url, c.env);
@@ -33,18 +31,18 @@ export async function handleQuickSkimRequest(c: Context, params: QuickSkimReques
       const content = text || (getContent ? await getContent({env: c.env, url}) : "");
 
       const isValid = isTextLengthValid(content);
-      if (!isValid) {
-        throw new Error(`Text length is invalid: ${content.length}`);
-      }
+      if (!isValid) throw new Error(`Text length is invalid: ${content.length}`);
+      
   
-      const generatedStream = await generateFunction({ env: c.env, text: content });
-      const loggingStream = await createLoggingStream(generatedStream, url, c.env);
+      const generatedStream = await generateFunction({ env: c.env, text: content, llmProvider });
+      const loggingStream = await createNormalizedLoggingStream(generatedStream, url, c.env, llmProvider);
       console.log({ event: logEventName, cache_status: 'MISS', url, text_length: content.length });
 
       return new Response(loggingStream, {
         headers: {
           "content-type": "text/event-stream",
-          "X-Cache-Status": "MISS"
+          "X-Cache-Status": "MISS",
+          "X-LLM-Provider": llmProvider
         },
       });
     } catch (error) {

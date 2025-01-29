@@ -7,7 +7,6 @@ export interface GetContentParams {
 
 export async function getCaptions({ env, url }: GetContentParams): Promise<string> {
     try {
-        console.log({ event: 'get_captions_request', url });
         const apiUrl = env.YOUTUBE_API_ENDPOINT_URL;
         const passkey = env.YOUTUBE_API_PASSKEY
 

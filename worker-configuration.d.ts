@@ -17,4 +17,5 @@ interface Env {
 	YOUTUBE_API_PASSKEY: string;
 	YOUTUBE_API_ENDPOINT_URL: string;
 	PUBLIC_API_KEY_V1: string;
+	OPENAI_API_KEY: string;
   }

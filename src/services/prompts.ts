@@ -1,8 +1,14 @@
 export const OUTPUT_SECTION_CLASS = "quickskim-output-section";
 
-export const getArticleQuickSkimPrompt = (articleText: string) => {
+export interface PromptMessage {
+    role: 'system' | 'user' | 'assistant' | 'function' | 'tool',
+    content: string;
+    name?: string;
+}
+
+export const getArticleQuickSkimPrompt = (articleText: string): PromptMessage[] => {
     return [
-		{ role: "system", content: `You are a reading assistant who creates informative and concise article reports. Format your response strictly using the following HTML structure:
+		{ role: "system", content: `You are a reading assistant who creates informative and concise article reports. Return your response as plain text that includes the following HTML elements. Do not add any markdown formatting or document-level HTML tags:
 
             <div class="${OUTPUT_SECTION_CLASS}">
                 <h2>Summary</h2>
@@ -22,13 +28,18 @@ export const getArticleQuickSkimPrompt = (articleText: string) => {
             </div>
 
             Instructions:
-            Adhere strictly to the specified HTML structure. Use these exact class names and tags.
-            Respond in the same language as the article. For example, if the article is in French, your response must also be in French. That includes all tags like <h2> and <p>.
-            Begin each text passage with the actual subject matter, not with phrases like "The article..." "The text..." or "The author...". Begin by getting straight to the point, For example, instead of "The article discusses the rise of plastics in the 1950s..." say "The rise of plastics in the 1950s..."
-            Write in immediate, active voice without any self-referencing or meta-referencing.
-            Only return the HTML content. Do not include any additional explanation, text, or commentary.
-            The Summary section should provide a concise overview of the article's content and main points.
-            The Breakdown section should go through the article sequentially from start to finish, condensing it into a few succinct bullet points.
+            - Adhere strictly to the specified HTML structure. Use these exact class names and tags.
+            - Respond in the same language as the article. For example, if the article is in French, your response must also be in French. That includes all tags like <h2> and <p>.
+            - Begin each text passage with the actual subject matter, not with phrases like "The article..." "The text..." or "The author...". Begin by getting straight to the point, For example, instead of "The article discusses the rise of plastics in the 1950s..." say "The rise of plastics in the 1950s..."
+            - Write in immediate, active voice without any self-referencing or meta-referencing.
+            - Only return the HTML content. Do not include any additional explanation, text, or commentary.
+            - The Summary section should provide a concise overview of the article's content and main points.
+            - The Breakdown section should go through the article sequentially from start to finish, condensing it into a few succinct bullet points.
+
+            Format Example:
+            - Return your response as plain text that includes the following HTML elements.
+            - Do not wrap the response in markdown formatting or code blocks (using backticks and 'html')
+            - Start your response like this: "<div class="${OUTPUT_SECTION_CLASS}"><h2>Summary</h2>..." not like this: "\`\`\`html<div class="${OUTPUT_SECTION_CLASS}"><h2>Summary</h2>..."
             `
         },
 		{ role: "user", content: `Here is the article text: "${articleText}"` },
@@ -37,9 +48,9 @@ export const getArticleQuickSkimPrompt = (articleText: string) => {
 
 
 
-export const getYouTubeQuickSkimPrompt = (captions: string) => {
+export const getYouTubeQuickSkimPrompt = (captions: string): PromptMessage[] => {
     return [
-        { role: "system", content: `You are a reading assistant who creates informative and concise video summaries from YouTube transcripts. Format your response strictly using the following HTML structure:
+        { role: "system", content: `You are a reading assistant who creates informative and concise video summaries from YouTube transcripts. Format your response strictly using the following HTML structure, and do not wrap the response in markdown code blocks or HTML tags:
 
             <div class="${OUTPUT_SECTION_CLASS}">
                 <h2>Summary</h2>
@@ -72,6 +83,7 @@ export const getYouTubeQuickSkimPrompt = (captions: string) => {
             
             Additionally:
             - Adhere strictly to the specified HTML structure. Use these exact class names and tags.
+            - Do not wrap the response in markdown code blocks (using backticks and 'html') or HTML tags (<!DOCTYPE>, <html>, etc.)
             - Respond in the same language as the video content
             - Begin each text passage with the actual subject matter, not with phrases like "The video..." or "The speaker..."
             - Write in immediate, active voice without any self-referencing

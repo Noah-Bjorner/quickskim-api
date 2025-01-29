@@ -7,7 +7,7 @@ export const allowedCountriesMiddleware = () => {
         const isAllowed = isCountryAllowed(country);
         
         if (!isAllowed) {
-            console.error({ event: 'country_access_denied', country: country });
+            console.error({ event: 'country_access_denied', country: country, type: 'middleware'});
             return c.json(
                 { 
                     error: 'Service not available in your region',
