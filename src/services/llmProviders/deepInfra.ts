@@ -2,29 +2,31 @@ import { getErrorMessage } from "../helper";
 import { PromptMessage } from "../prompts";
 import { StreamTransformer, NormalizedToken } from "../stream";
 
-const API_KEY = 'YRREAwcGXucZCXKDr8Zim8ntJ12L63rv'; //Move to worker secrets later.
+const MODELS = {
+  'phi-4': 'https://api.deepinfra.com/v1/inference/microsoft/phi-4',
+  'llama-3.3': 'https://api.deepinfra.com/v1/inference/meta-llama/Llama-3.3-70B-Instruct-Turbo'
+}
 
 export async function generateDeepInfraStreamingResponse(
+    env: Env,
+    model: keyof typeof MODELS,
     messages: PromptMessage[],
     max_tokens: number = 2000,
     temperature: number = 0.2
 ): Promise<ReadableStream<any>> {
   try {
-    const formattedPrompt = messages.map(msg => 
-        `<|im_start|>${msg.role}<|im_sep|>${msg.content}<|im_end|>`
-    ).join("") + "<|im_start|>assistant<|im_sep|>";
+    const {prompt, stop} = modelPrompt(messages, model);
 
-    console.log(`formattedPrompt: ${formattedPrompt}`);
-
-    const response = await fetch('https://api.deepinfra.com/v1/inference/microsoft/phi-4', {
+    const modelURL = MODELS[model];
+    const response = await fetch(modelURL, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${API_KEY}`
+            'Authorization': `Bearer ${env.DEEPINFRA_QUICKSKIM_API_KEY_V1}`
         },
         body: JSON.stringify({
-            input: formattedPrompt,
-            stop: ["<|endoftext|>", "<|im_end|>"],
+            input: prompt,
+            stop: stop,
             stream: true,
             max_tokens,
             temperature
@@ -42,14 +44,34 @@ export async function generateDeepInfraStreamingResponse(
   }
 }
 
+function modelPrompt(messages: PromptMessage[], model: keyof typeof MODELS): {prompt: string, stop: string[]} {
+  switch (model) {
+    case 'phi-4':
+      return {
+        prompt: messages.map(msg => `<|im_start|>${msg.role}<|im_sep|>${msg.content}<|im_end|>`).join("") + "<|im_start|>assistant<|im_sep|>",
+        stop: ["<|endoftext|>", "<|im_end|>"]
+      }
+    case 'llama-3.3':
+      return {
+        prompt: messages.map(msg => 
+          `<|begin_of_text|><|start_header_id|>${msg.role}<|end_header_id|>\n\n${msg.content}<|eot_id|>`
+        ).join("") + "<|start_header_id|>assistant<|end_header_id|>\n\n",
+        stop: ["<|eot_id|>", "<|end_of_text|>", "<|eom_id|>"]
+      }
+  }
+} 
+
+
+
 
 
 export const deepInfraTransformer: StreamTransformer = { transformChunk: (text: string): NormalizedToken | null => {
     try {
       const jsonData = JSON.parse(text);
-      if (jsonData.token?.text) {
+      const textChunk = jsonData.token?.text;
+      if (textChunk) {
         return {
-          text: jsonData.token.text,
+          text: textChunk,
           metadata: {
             model: 'deepInfra',
             originalChunk: jsonData

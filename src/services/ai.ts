@@ -12,15 +12,15 @@ export interface QuickSkimParams {
 }
 
 
-
 export async function generateArticleQuickSkim({ env, text, llmProvider }: QuickSkimParams): Promise<ReadableStream<any>>  {
     try {
         const messages = getArticleQuickSkimPrompt(text);
         switch (llmProvider) {
             case 'workersAI':
-                return await generateLLamaStreamingResponse(env, messages, 2048, 0.2);
+                return await generateLLamaStreamingResponse(env, messages, 2048, 0.3);
             case 'deepInfra':
-                return await generateDeepInfraStreamingResponse(messages, 2000, 0.2);
+                const deepInfraModel = 'llama-3.3';
+                return await generateDeepInfraStreamingResponse(env, deepInfraModel, messages, 2000, 0.3);
             default:
                 throw new Error(`Invalid LLM provider: ${llmProvider}`);
         }
@@ -35,9 +35,10 @@ export async function generateYouTubeQuickSkim({ env, text, llmProvider }: Quick
         const messages = getYouTubeQuickSkimPrompt(text);
         switch (llmProvider) {
             case 'workersAI':
-                return await generateLLamaStreamingResponse(env, messages, 2048, 0.2);
+                return await generateLLamaStreamingResponse(env, messages, 2048, 0.3);
             case 'deepInfra':
-                return await generateDeepInfraStreamingResponse(messages, 2000, 0.2);
+                const deepInfraModel = 'llama-3.3';
+                return await generateDeepInfraStreamingResponse(env, deepInfraModel, messages, 2000, 0.3);
             default:
                 throw new Error(`Invalid LLM provider: ${llmProvider}`);
         }
@@ -75,12 +76,13 @@ export async function testAISummarize(env: Env, llmProvider: 'workersAI' | 'deep
                     },
                 });
             case 'deepInfra':
-                const deepInfraStream = await generateDeepInfraStreamingResponse(messages, 2000, 0.25);
+                const model = 'llama-3.3';
+                const deepInfraStream = await generateDeepInfraStreamingResponse(env, model, messages, 2000, 0.25);
                 const deepInfraNormalizedStream = await createNormalizedLoggingStream(deepInfraStream, url, env, llmProvider);
                 return new Response(deepInfraNormalizedStream, {
                     headers: {
                         "content-type": "text/event-stream",
-                        "X-LLM-Provider": llmProvider
+                        "X-LLM-Provider": `${llmProvider}/${model}`
                     },
                 });
             default:

@@ -1,5 +1,4 @@
-import { getErrorMessage } from "./helper";
-
+import { cacheQuickSkim } from "./cache";
 import { workersAITransformer } from "./llmProviders/workersAI";
 import { deepInfraTransformer } from "./llmProviders/deepInfra";
 
@@ -35,10 +34,7 @@ export async function createNormalizedLoggingStream(
           if (!trimmedLine) continue;
 
           const isCompleteChunk = trimmedLine.startsWith('data: ') && trimmedLine.endsWith('}');
-          if (!isCompleteChunk) {
-            //console.log(`!isCompleteChunk buffer: ${buffer} text: ${text}`);
-            continue;
-          };
+          if (!isCompleteChunk) continue;
 
           const jsonStr = trimmedLine.replace(/^data: /, '').trim();
           buffer = '';
@@ -58,8 +54,7 @@ export async function createNormalizedLoggingStream(
       },
       
       async flush() {
-        console.log(`completeResponse.length: ${completeResponse.length}, completeResponse: ${completeResponse}`);
-        //await cacheQuickSkim(completeResponse, url, env);
+        await cacheQuickSkim(completeResponse, url, env);
       }
     });
   

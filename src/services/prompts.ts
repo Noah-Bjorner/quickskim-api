@@ -8,7 +8,7 @@ export interface PromptMessage {
 
 export const getArticleQuickSkimPrompt = (articleText: string): PromptMessage[] => {
     return [
-		{ role: "system", content: `You are a reading assistant who creates informative and concise article reports. Return your response as plain text that includes the following HTML elements. Do not add any markdown formatting or document-level HTML tags:
+		{ role: "system", content: `You are a reading assistant who creates informative and concise article reports. Format your response strictly using the following HTML structure:
 
             <div class="${OUTPUT_SECTION_CLASS}">
                 <h2>Summary</h2>
@@ -35,11 +35,6 @@ export const getArticleQuickSkimPrompt = (articleText: string): PromptMessage[] 
             - Only return the HTML content. Do not include any additional explanation, text, or commentary.
             - The Summary section should provide a concise overview of the article's content and main points.
             - The Breakdown section should go through the article sequentially from start to finish, condensing it into a few succinct bullet points.
-
-            Format Example:
-            - Return your response as plain text that includes the following HTML elements.
-            - Do not wrap the response in markdown formatting or code blocks (using backticks and 'html')
-            - Start your response like this: "<div class="${OUTPUT_SECTION_CLASS}"><h2>Summary</h2>..." not like this: "\`\`\`html<div class="${OUTPUT_SECTION_CLASS}"><h2>Summary</h2>..."
             `
         },
 		{ role: "user", content: `Here is the article text: "${articleText}"` },
@@ -50,7 +45,7 @@ export const getArticleQuickSkimPrompt = (articleText: string): PromptMessage[] 
 
 export const getYouTubeQuickSkimPrompt = (captions: string): PromptMessage[] => {
     return [
-        { role: "system", content: `You are a reading assistant who creates informative and concise video summaries from YouTube transcripts. Format your response strictly using the following HTML structure, and do not wrap the response in markdown code blocks or HTML tags:
+        { role: "system", content: `You are a reading assistant who creates informative and concise video summaries from YouTube transcripts. Format your response strictly using the following HTML structure:
 
             <div class="${OUTPUT_SECTION_CLASS}">
                 <h2>Summary</h2>
@@ -83,7 +78,6 @@ export const getYouTubeQuickSkimPrompt = (captions: string): PromptMessage[] => 
             
             Additionally:
             - Adhere strictly to the specified HTML structure. Use these exact class names and tags.
-            - Do not wrap the response in markdown code blocks (using backticks and 'html') or HTML tags (<!DOCTYPE>, <html>, etc.)
             - Respond in the same language as the video content
             - Begin each text passage with the actual subject matter, not with phrases like "The video..." or "The speaker..."
             - Write in immediate, active voice without any self-referencing
