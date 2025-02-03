@@ -43,7 +43,10 @@ export const getArticleQuickSkimPrompt = (articleText: string): PromptMessage[] 
 
 
 
-export const getYouTubeQuickSkimPrompt = (captions: string): PromptMessage[] => {
+export const getYouTubeQuickSkimPrompt = (transcript: string): PromptMessage[] => {
+    const approximateTranscriptLength20min = 25000;
+    const numberOfBulletPoints = transcript.length < approximateTranscriptLength20min ? '3-5' : '3-10';
+    
     return [
         { role: "system", content: `You are a reading assistant who creates informative and concise video summaries from YouTube transcripts. Format your response strictly using the following HTML structure:
 
@@ -57,35 +60,33 @@ export const getYouTubeQuickSkimPrompt = (captions: string): PromptMessage[] => 
             <div class="${OUTPUT_SECTION_CLASS}">
                 <h2>Breakdown</h2>
                 <ul>
-                    <li>[Concise bullet point that is written as brief and to-the-point as possible]</li>
-                    <li>[Concise bullet point that is written as brief and to-the-point as possible]</li>
-                    <li>[Concise bullet point that is written as brief and to-the-point as possible]</li>
-                    <!-- Continue with more bullet point as necessary -->
+                    <li><time>HH:MM:SS</time> [Concise bullet point that is written as brief and to-the-point as possible]</li>
+                    <li><time>HH:MM:SS</time> [Concise bullet point that is written as brief and to-the-point as possible]</li>
+                    <li><time>HH:MM:SS</time> [Concise bullet point that is written as brief and to-the-point as possible]</li>
+                    <!-- Continue with more timestamped bullet points as necessary -->
                 </ul>
             </div>
 
             Instructions:
-            The input is an auto-generated YouTube transcript that may contain:
-            - Incorrect word recognition
-            - Missing punctuation and sentence boundaries
-            - Speaker changes without clear indication
-            - Repeated words or phrases
-            
+            - The input is a auto-generated YouTube transcript with timestamps formatted as: "[HH:MM:SS] text segment [HH:MM:SS] next text segment...".
+            - The transcript may contain: incorrect word recognition, missing punctuation and sentence boundaries, speaker changes without clear indication, repeated words or phrases.
+                        
             Your task is to:
-            1. Infer the correct meaning from context when words seem incorrect
-            2. Structure the content into coherent thoughts despite missing punctuation
-            3. Focus on the main ideas rather than exact wording
+            1. Infer the correct meaning from context when words seem incorrect.
+            2. Structure the content into coherent thoughts despite missing punctuation.
+            3. Focus on the main ideas rather than exact wording.
             
             Additionally:
             - Adhere strictly to the specified HTML structure. Use these exact class names and tags.
-            - Respond in the same language as the video content
-            - Begin each text passage with the actual subject matter, not with phrases like "The video..." or "The speaker..."
-            - Write in immediate, active voice without any self-referencing
-            - Only return the HTML content. Do not include any additional explanation, text, or commentary
-            - The Summary section should provide a concise overview of the video's main points
-            - The Breakdown section should present the key points in sequential order
+            - Respond in the same language as the video content.
+            - Begin each text passage with the actual subject matter, not with phrases like "The video..." or "The speaker...".
+            - Write in immediate, active voice without any self-referencing.
+            - Only return the HTML content. Do not include any additional explanation, text, or commentary.
+            - The Summary section should provide a concise overview of the video's main points.
+            - In the Breakdown section, highlight the video's main points in chronological order, aiming for ${numberOfBulletPoints} bullet points. Focus on essential ideas and topics rather than offering a minute-by-minute account.
             `
         },
-        { role: "user", content: `Here are the video captions: "${captions}"` },
+        { role: "user", content: `Here is the youtube transcript: "${transcript}"` },
     ];
 }
+

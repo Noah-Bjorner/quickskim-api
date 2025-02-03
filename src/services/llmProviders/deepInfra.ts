@@ -22,15 +22,18 @@ export async function generateDeepInfraStreamingResponse(
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${env.DEEPINFRA_QUICKSKIM_API_KEY_V1}`
+            'Authorization': `Bearer ${env.DEEPINFRA_QUICKSKIM_API_KEY_V1}`,
+            'Accept': 'text/event-stream'
         },
         body: JSON.stringify({
             input: prompt,
             stop: stop,
             stream: true,
             max_tokens,
-            temperature
-        })
+            temperature,
+            timeout: 120000
+        }),
+        signal: AbortSignal.timeout(180000),
     });
 
     if (!response.ok) {

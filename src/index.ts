@@ -2,11 +2,11 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 
 import { generateArticleQuickSkim, generateYouTubeQuickSkim, testAISummarize } from './services/ai'
-import { rateLimitMiddleware } from './services/rateLimit'
-import { allowedCountriesMiddleware } from './services/allowedCountries'
-import { allowedAPIKeyMiddleware } from './services/apiKey'
+import { rateLimitMiddleware } from './middleware/rateLimit'
+import { allowedCountriesMiddleware } from './middleware/allowedCountries'
+import { allowedAPIKeyMiddleware } from './middleware/apiKey'
 import { cleanYoutubeUrl, getCaptions } from './services/youtube'
-import { handleQuickSkimRequest } from './services/logic'
+import { handleQuickSkimRequest } from './services/handleEndpoints'
 
 
 const app = new Hono<{ Bindings: Env }>()
@@ -16,8 +16,7 @@ app.use('/*', cors({
   origin: '*',
   allowMethods: [
 	'POST',
-	'GET',
-	'OPTIONS'
+	'GET'
   ],
   allowHeaders: [
 	'Content-Type',

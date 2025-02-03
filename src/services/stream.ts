@@ -21,6 +21,7 @@ export async function createNormalizedLoggingStream(
     llmProvider: 'workersAI' | 'deepInfra'
 ) {
     let completeResponse = '';
+    let rawCompleteResponse = ''; // remove later
     let buffer = '';
 
     const transformStream = new TransformStream({
@@ -30,6 +31,8 @@ export async function createNormalizedLoggingStream(
 
         const lines = buffer.split('\n');
         for (const line of lines) {
+          rawCompleteResponse += line;
+
           const trimmedLine = line.trim();
           if (!trimmedLine) continue;
 
@@ -52,9 +55,11 @@ export async function createNormalizedLoggingStream(
           controller.enqueue(newChunk);
         }
       },
-      
+
       async flush() {
-        await cacheQuickSkim(completeResponse, url, env);
+        console.log(`completeResponse(${url}): ${completeResponse}`);
+        console.log(`rawCompleteResponse(${url}): ${rawCompleteResponse}`);
+        //await cacheQuickSkim(completeResponse, url, env);
       }
     });
   

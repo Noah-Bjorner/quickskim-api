@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { isCountryAllowed } from "./countries";
+import { isCountryAllowed } from "../services/countries";
 
 export const allowedCountriesMiddleware = () => {
     return async (c: Context<{ Bindings: Env }>, next: () => Promise<void>) => {

@@ -2,8 +2,8 @@ import { Redis } from "@upstash/redis/cloudflare";
 import { Ratelimit } from "@upstash/ratelimit";
 import { Context } from "hono";
 
-import { getClosestRateLimitDatabase } from "./countries";
-import { getErrorMessage } from "./helper";
+import { getClosestRateLimitDatabase } from "../services/countries";
+import { getErrorMessage } from "../services/helper";
 
 export enum REDIS_RATE_LIMIT_DATABASES {
     VIRGINIA = 'Virginia',

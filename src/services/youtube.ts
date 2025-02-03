@@ -19,19 +19,17 @@ export async function getCaptions({ env, url }: GetContentParams): Promise<strin
         
         if (!response.ok) throw new Error(`Failed to fetch captions -> status: ${response.status} url: ${url}`);
 
-        const data = await response.json() as { captions: string };
-
-        const captions = data.captions
+        const captions = await response.json()
 
         if (!captions) throw new Error(`status: ${response.status} url: ${url}`);
 
-        return captions;
+        const captionsString = formatCaptionsForLLM(JSON.stringify(captions));
+
+        return captionsString;
     } catch (error) {
         throw new Error(`getCaptions failed: ${getErrorMessage(error)}`);
     }
 }
-
-
 
 export function cleanYoutubeUrl(url: string): string {
     try {
@@ -47,4 +45,23 @@ export function cleanYoutubeUrl(url: string): string {
     } catch (error) {
         throw new Error(`Failed to clean YouTube URL: ${getErrorMessage(error)}`);
     }
+}
+
+
+
+
+
+function formatCaptionsForLLM(captionsJSON: string): string {
+    const json = JSON.parse(captionsJSON) as { captions: { start: string, text: string }[] };
+    return json.captions
+        .map((caption: { start: string, text: string }) => {
+            // Convert seconds to HH:MM:SS format
+            const hours = Math.floor(Number(caption.start) / 3600);
+            const minutes = Math.floor((Number(caption.start) % 3600) / 60);
+            const seconds = Math.floor(Number(caption.start) % 60);
+            const timestamp = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            return `[${timestamp}] ${caption.text}`;
+        })
+        .join(' ');
 }

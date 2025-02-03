@@ -15,7 +15,6 @@ export function cleanHtmlString(htmlString: string): string {
 
 
 
-
 export function isValidQuickSkimResponse(html: string): boolean {
     if (html.startsWith('```html') || html.endsWith('```')) return false;
     

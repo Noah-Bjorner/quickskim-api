@@ -15,7 +15,6 @@ interface QuickSkimRequestParams {
 }
 
 export async function handleQuickSkimRequest(c: Context, params: QuickSkimRequestParams): Promise<Response> {
-    
     const { url, text, logEventName, generateFunction, getContent, llmProvider } = params;
   
     try {
@@ -32,7 +31,6 @@ export async function handleQuickSkimRequest(c: Context, params: QuickSkimReques
 
       const isValid = isTextLengthValid(content);
       if (!isValid) throw new Error(`Text length is invalid: ${content.length}`);
-      
   
       const generatedStream = await generateFunction({ env: c.env, text: content, llmProvider });
       const loggingStream = await createNormalizedLoggingStream(generatedStream, url, c.env, llmProvider);

@@ -20,7 +20,7 @@ export async function generateArticleQuickSkim({ env, text, llmProvider }: Quick
                 return await generateLLamaStreamingResponse(env, messages, 2048, 0.3);
             case 'deepInfra':
                 const deepInfraModel = 'llama-3.3';
-                return await generateDeepInfraStreamingResponse(env, deepInfraModel, messages, 2000, 0.3);
+                return await generateDeepInfraStreamingResponse(env, deepInfraModel, messages, 2500, 0.3);
             default:
                 throw new Error(`Invalid LLM provider: ${llmProvider}`);
         }
@@ -38,7 +38,7 @@ export async function generateYouTubeQuickSkim({ env, text, llmProvider }: Quick
                 return await generateLLamaStreamingResponse(env, messages, 2048, 0.3);
             case 'deepInfra':
                 const deepInfraModel = 'llama-3.3';
-                return await generateDeepInfraStreamingResponse(env, deepInfraModel, messages, 2000, 0.3);
+                return await generateDeepInfraStreamingResponse(env, deepInfraModel, messages, 2500, 0.2);
             default:
                 throw new Error(`Invalid LLM provider: ${llmProvider}`);
         }
