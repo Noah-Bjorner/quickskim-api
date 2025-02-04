@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 
-import { generateArticleQuickSkim, generateYouTubeQuickSkim, testAISummarize } from './services/ai'
+import { generateArticleQuickSkim, generateYouTubeQuickSkim } from './services/ai'
 import { rateLimitMiddleware } from './middleware/rateLimit'
 import { allowedCountriesMiddleware } from './middleware/allowedCountries'
 import { allowedAPIKeyMiddleware } from './middleware/apiKey'
@@ -42,9 +42,7 @@ app.use('/*', cors({
 }))
 
 app.use('/*', allowedCountriesMiddleware());
-
 app.use('/*', allowedAPIKeyMiddleware());
-
 app.use('/*', rateLimitMiddleware({
     requests: 8,
     window: 60
@@ -53,12 +51,6 @@ app.use('/*', rateLimitMiddleware({
 
 
 app.get('/health', (c) => c.text('healthy', 200))
-
-
-app.get('/test', async (c) => {
-	const { llmProvider } = await c.req.json();
-	return await testAISummarize(c.env, llmProvider);
-});
 
 
 app.post('/article', async (c) => {
@@ -97,5 +89,4 @@ app.post('/youtube', async (c) => {
 
 
 export default app
-
 

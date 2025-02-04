@@ -3,7 +3,7 @@ import { getCachedQuickSkim } from "./cache";
 import { isTextLengthValid, getErrorMessage } from "./helper";
 import { QuickSkimParams } from "./ai";
 import { GetContentParams } from "./youtube";
-import { createNormalizedLoggingStream } from "./stream";
+import { createCacheableStream } from "./stream";
 
 interface QuickSkimRequestParams {
     url: string;
@@ -20,7 +20,7 @@ export async function handleQuickSkimRequest(c: Context, params: QuickSkimReques
     try {
       const cachedContent = await getCachedQuickSkim(url, c.env);
       if (cachedContent) {
-        console.log({ event: logEventName, cache_status: 'HIT', url, text_length: text?.length || 0 });
+        console.log({ event: logEventName, cache_status: 'HIT', url, text_length: cachedContent.length});
         return c.json(
           { content: cachedContent },
           { headers: { "X-Cache-Status": "HIT" }}
@@ -33,10 +33,10 @@ export async function handleQuickSkimRequest(c: Context, params: QuickSkimReques
       if (!isValid) throw new Error(`Text length is invalid: ${content.length}`);
   
       const generatedStream = await generateFunction({ env: c.env, text: content, llmProvider });
-      const loggingStream = await createNormalizedLoggingStream(generatedStream, url, c.env, llmProvider);
+      const cacheableStream = await createCacheableStream(generatedStream, url, c.env, llmProvider);
       console.log({ event: logEventName, cache_status: 'MISS', url, text_length: content.length });
 
-      return new Response(loggingStream, {
+      return new Response(cacheableStream, {
         headers: {
           "content-type": "text/event-stream",
           "X-Cache-Status": "MISS",

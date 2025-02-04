@@ -118,34 +118,47 @@ const ALLOWED_COUNTRIES = new Set([
 
 
 
-
-
 export const getClosestRateLimitDatabase = (timeZone: string, country: string): REDIS_RATE_LIMIT_DATABASES => {
     try {
-        const continent = timeZone.split('/')[0]
-        const location = timeZone.split('/')[1]
+        const region = timeZone.split('/')[0] // e.g. Europe
+        const location = timeZone.split('/')[1] // e.g. New_York
 
-        if (country === COUNTRIES.UNITED_STATES) {
-            const westLocations = ["Los_Angeles", "Denver", "San_Francisco", "Seattle", "Portland", "Phoenix", "Las_Vegas", "Boise"]
-            //const eastLocations = ["New_York", "Chicago", "Miami", "Atlanta", "Boston", "Detroit", "Washington"]
-            return westLocations.includes(location) ? REDIS_RATE_LIMIT_DATABASES.CALIFORNIA : REDIS_RATE_LIMIT_DATABASES.VIRGINIA
-        } else if (country === COUNTRIES.CANADA) {
-            const westLocations = ["Vancouver", "Calgary", "Edmonton", "Victoria", "Whitehorse", "Yellowknife", "Regina", "Saskatoon"]
-            //const eastLocations = ["Toronto", "Montreal", "Ottawa", "Quebec", "Halifax", "Winnipeg", "St_Johns", "Moncton", "Iqaluit"]
-            return westLocations.includes(location) ? REDIS_RATE_LIMIT_DATABASES.CALIFORNIA : REDIS_RATE_LIMIT_DATABASES.VIRGINIA
-        } else if (continent === CONTINENTS.EUROPE) {
+        // Europe
+        if (region === CONTINENTS.EUROPE) {
             return REDIS_RATE_LIMIT_DATABASES.GERMANY
-        } else if (country === COUNTRIES.MEXICO) {
-            return REDIS_RATE_LIMIT_DATABASES.CALIFORNIA
-        } else if (country === COUNTRIES.AUSTRALIA || country === COUNTRIES.NEW_ZEALAND) {
-            return REDIS_RATE_LIMIT_DATABASES.AUSTRALIA
-        } else if (continent === CONTINENTS.AMERICA) {
-            return REDIS_RATE_LIMIT_DATABASES.BRAZIL
-        } else if (continent === CONTINENTS.ASIA || continent === CONTINENTS.PACIFIC) {
-            return REDIS_RATE_LIMIT_DATABASES.JAPAN
-        } else {
-            throw new Error(`Unknown location: ${continent}-${country}-${location}`)
         }
+
+        // USA & Canada
+        if (country === COUNTRIES.UNITED_STATES || country === COUNTRIES.CANADA) {
+            if (country === COUNTRIES.MEXICO ) return REDIS_RATE_LIMIT_DATABASES.CALIFORNIA
+            const usWestLocations = ["Los_Angeles", "Denver", "San_Francisco", "Seattle", "Portland", "Phoenix", "Las_Vegas", "Boise"]
+            const caWestLocations = ["Vancouver", "Calgary", "Edmonton", "Victoria", "Whitehorse", "Yellowknife", "Regina", "Saskatoon"]
+            const westLocations = [...usWestLocations, ...caWestLocations]
+            return westLocations.includes(location) ? REDIS_RATE_LIMIT_DATABASES.CALIFORNIA : REDIS_RATE_LIMIT_DATABASES.VIRGINIA
+        }
+
+        // Mexico
+        if (country === COUNTRIES.MEXICO) {
+            return REDIS_RATE_LIMIT_DATABASES.CALIFORNIA
+        }
+
+        // Australia & New Zealand
+        if (country === COUNTRIES.AUSTRALIA || country === COUNTRIES.NEW_ZEALAND) {
+            return REDIS_RATE_LIMIT_DATABASES.AUSTRALIA
+        }
+
+        // South America
+        if (country === COUNTRIES.ARGENTINA || country === COUNTRIES.BRAZIL || country === COUNTRIES.CHILE || country === COUNTRIES.URUGUAY) {
+            return REDIS_RATE_LIMIT_DATABASES.BRAZIL
+        }
+
+        // Asia
+        if (country === COUNTRIES.JAPAN || country === COUNTRIES.SOUTH_KOREA) {
+            return REDIS_RATE_LIMIT_DATABASES.JAPAN
+        }
+
+        // Rest of the world
+        return REDIS_RATE_LIMIT_DATABASES.GERMANY
     } catch (error) {
         console.error({ event: 'failed_to_get_closest_rate_limit_database', error: getErrorMessage(error), country: country, timeZone: timeZone });
         return REDIS_RATE_LIMIT_DATABASES.GERMANY

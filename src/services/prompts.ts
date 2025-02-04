@@ -81,6 +81,7 @@ export const getYouTubeQuickSkimPrompt = (transcript: string): PromptMessage[] =
             - Respond in the same language as the video content.
             - Begin each text passage with the actual subject matter, not with phrases like "The video..." or "The speaker...".
             - Write in immediate, active voice without any self-referencing.
+            - You must always complete the HTML structure with proper closing tags as specified in the HTML structure.
             - Only return the HTML content. Do not include any additional explanation, text, or commentary.
             - The Summary section should provide a concise overview of the video's main points.
             - In the Breakdown section, highlight the video's main points in chronological order, aiming for ${numberOfBulletPoints} bullet points. Focus on essential ideas and topics rather than offering a minute-by-minute account.

@@ -2,26 +2,19 @@ import { cacheQuickSkim } from "./cache";
 import { workersAITransformer } from "./llmProviders/workersAI";
 import { deepInfraTransformer } from "./llmProviders/deepInfra";
 
-export interface NormalizedToken {
-    text: string;
-    metadata?: {
-      model: 'workersAI' | 'deepInfra';
-      originalChunk: any;
-    };
-}
 
 export interface StreamTransformer {
-    transformChunk: (text: string) => NormalizedToken | null;
+    transformChunk: (rawResponse: string) => string | null;
 }
 
-export async function createNormalizedLoggingStream(
+
+export async function createCacheableStream(
     originalStream: ReadableStream,
     url: string,
     env: Env,
     llmProvider: 'workersAI' | 'deepInfra'
 ) {
     let completeResponse = '';
-    let rawCompleteResponse = ''; // remove later
     let buffer = '';
 
     const transformStream = new TransformStream({
@@ -31,8 +24,6 @@ export async function createNormalizedLoggingStream(
 
         const lines = buffer.split('\n');
         for (const line of lines) {
-          rawCompleteResponse += line;
-
           const trimmedLine = line.trim();
           if (!trimmedLine) continue;
 
@@ -46,20 +37,16 @@ export async function createNormalizedLoggingStream(
           if (!jsonStr || invalidJsonStrings.includes(jsonStr)) continue;
 
           const transformer = getTransformer(llmProvider);
-          const normalizedToken = transformer.transformChunk(jsonStr);
-          if (!normalizedToken) continue;
+          const normalizedText = transformer.transformChunk(jsonStr);
+          if (!normalizedText) continue;
         
-          completeResponse += normalizedToken.text;
-          const textChunk = `data: ${JSON.stringify({ response: normalizedToken.text })}\n\n`
-          const newChunk = new TextEncoder().encode(textChunk);
-          controller.enqueue(newChunk);
+          completeResponse += normalizedText;
         }
+        controller.enqueue(chunk);
       },
 
       async flush() {
-        console.log(`completeResponse(${url}): ${completeResponse}`);
-        console.log(`rawCompleteResponse(${url}): ${rawCompleteResponse}`);
-        //await cacheQuickSkim(completeResponse, url, env);
+        await cacheQuickSkim(completeResponse, url, env);
       }
     });
   

@@ -1,5 +1,5 @@
 import { PromptMessage } from "../prompts";
-import { StreamTransformer, NormalizedToken } from "../stream";
+import { StreamTransformer } from "../stream";
 
 export async function generateLLamaStreamingResponse(
     env: Env,
@@ -21,19 +21,11 @@ export async function generateLLamaStreamingResponse(
 
 
 export const workersAITransformer: StreamTransformer = {
-  transformChunk: (text: string): NormalizedToken | null => {
+  transformChunk: (rawResponse: string): string | null => {
     try {
-      const jsonData = JSON.parse(text);
+      const jsonData = JSON.parse(rawResponse);
       const response = jsonData.response;
-      if (response) {
-        return {
-          text: response,
-          metadata: {
-            model: 'workersAI',
-            originalChunk: jsonData
-          }
-        };
-      }
+      return response || null;
     } catch (e) {}
     return null;
   }
