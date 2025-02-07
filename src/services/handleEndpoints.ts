@@ -48,4 +48,3 @@ export async function handleQuickSkimRequest(c: Context, params: QuickSkimReques
       return c.json({ error: `Failed to process ${logEventName}` }, 500);
     }
   }
-  

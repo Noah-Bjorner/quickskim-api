@@ -6,6 +6,7 @@ export interface PromptMessage {
     name?: string;
 }
 
+
 export const getArticleQuickSkimPrompt = (articleText: string): PromptMessage[] => {
     return [
 		{ role: "system", content: `You are a reading assistant who creates informative and concise article reports. Format your response strictly using the following HTML structure:
@@ -29,6 +30,7 @@ export const getArticleQuickSkimPrompt = (articleText: string): PromptMessage[] 
 
             Instructions:
             - Adhere strictly to the specified HTML structure. Use these exact class names and tags.
+            - You must always complete the HTML structure with proper closing tags as specified in the HTML structure.
             - Respond in the same language as the article. For example, if the article is in French, your response must also be in French. That includes all tags like <h2> and <p>.
             - Begin each text passage with the actual subject matter, not with phrases like "The article..." "The text..." or "The author...". Begin by getting straight to the point, For example, instead of "The article discusses the rise of plastics in the 1950s..." say "The rise of plastics in the 1950s..."
             - Write in immediate, active voice without any self-referencing or meta-referencing.
@@ -78,7 +80,8 @@ export const getYouTubeQuickSkimPrompt = (transcript: string): PromptMessage[] =
             
             Additionally:
             - Adhere strictly to the specified HTML structure. Use these exact class names and tags.
-            - Respond in the same language as the video content.
+            - You must always complete the HTML structure with proper closing tags as specified in the HTML structure.
+            - Respond in the same language as the video transcript.
             - Begin each text passage with the actual subject matter, not with phrases like "The video..." or "The speaker...".
             - Write in immediate, active voice without any self-referencing.
             - You must always complete the HTML structure with proper closing tags as specified in the HTML structure.

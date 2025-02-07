@@ -8,9 +8,7 @@ import { allowedAPIKeyMiddleware } from './middleware/apiKey'
 import { cleanYoutubeUrl, getCaptions } from './services/youtube'
 import { handleQuickSkimRequest } from './services/handleEndpoints'
 
-
 const app = new Hono<{ Bindings: Env }>()
-
 
 app.use('/*', cors({
   origin: '*',
@@ -43,17 +41,11 @@ app.use('/*', cors({
 
 app.use('/*', allowedCountriesMiddleware());
 app.use('/*', allowedAPIKeyMiddleware());
-app.use('/*', rateLimitMiddleware({
-    requests: 8,
-    window: 60
-}));
-
-
+app.use('/*', rateLimitMiddleware({requests: 8, window: 60}));
 
 app.get('/health', (c) => c.text('healthy', 200))
 
-
-app.post('/article', async (c) => {
+app.post('/v1/article', async (c) => {
 	try {
 		const { articleText, url } = await c.req.json();
 		return handleQuickSkimRequest(c, {
@@ -69,8 +61,7 @@ app.post('/article', async (c) => {
 	}
 });
 
-
-app.post('/youtube', async (c) => {
+app.post('/v1/youtube', async (c) => {
 	try {
 		const { url } = await c.req.json();
 		const cleanUrl = cleanYoutubeUrl(url)
@@ -86,7 +77,6 @@ app.post('/youtube', async (c) => {
 		return c.json({ error: 'youtube_response_unexpect_error' }, 500);
 	}
 });
-
 
 export default app
 
