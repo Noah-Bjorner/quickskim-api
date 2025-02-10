@@ -2,6 +2,9 @@ import { OUTPUT_SECTION_CLASS } from "./prompts";
   
 export function cleanHtmlString(htmlString: string): string {
     return htmlString
+      // Remove markdown code fences
+      .replace(/```html\n?/g, '')
+      .replace(/```\n?/g, '')
       // Convert escaped quotes back to regular quotes
       .replace(/\\"/g, '"')
       // Remove all whitespace control characters
@@ -16,8 +19,6 @@ export function cleanHtmlString(htmlString: string): string {
 
 
 export function isValidQuickSkimResponse(html: string): boolean {
-    if (html.startsWith('```html') || html.endsWith('```')) return false;
-    
     const outputSections = html.match(new RegExp(`<div class="${OUTPUT_SECTION_CLASS}">(.*?)</div>`, 'gs'));
     if (!outputSections || outputSections.length !== 2) return false;
     

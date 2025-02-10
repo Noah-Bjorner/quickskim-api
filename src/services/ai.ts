@@ -2,12 +2,12 @@ import { getErrorMessage } from "./helper";
 import { getArticleQuickSkimPrompt, getYouTubeQuickSkimPrompt, PromptMessage } from "./prompts";
 import { generateLLamaStreamingResponse } from "./llmProviders/workersAI";
 import { generateDeepInfraStreamingResponse } from "./llmProviders/deepInfra";
-
+import { generateOpenRouterStreamingResponse } from "./llmProviders/openRouter";
 
 export interface QuickSkimParams {
     env: Env;
     text: string;
-    llmProvider: 'workersAI' | 'deepInfra';
+    llmProvider: 'workersAI' | 'deepInfra' | 'openRouter';
 }
 
 
@@ -20,6 +20,8 @@ export async function generateArticleQuickSkim({ env, text, llmProvider }: Quick
             case 'deepInfra':
                 const deepInfraModel = 'llama-3.3';
                 return await generateDeepInfraStreamingResponse(env, deepInfraModel, messages, 2500, 0.3);
+            case 'openRouter':
+                return await generateOpenRouterStreamingResponse(env, messages, 2500, 0.3);
             default:
                 throw new Error(`Invalid LLM provider: ${llmProvider}`);
         }
@@ -38,6 +40,8 @@ export async function generateYouTubeQuickSkim({ env, text, llmProvider }: Quick
             case 'deepInfra':
                 const deepInfraModel = 'llama-3.3';
                 return await generateDeepInfraStreamingResponse(env, deepInfraModel, messages, 2500, 0.3);
+            case 'openRouter':
+                return await generateOpenRouterStreamingResponse(env, messages, 2500, 0.3);
             default:
                 throw new Error(`Invalid LLM provider: ${llmProvider}`);
         }

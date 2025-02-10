@@ -1,6 +1,7 @@
 import { cacheQuickSkim } from "./cache";
 import { workersAITransformer } from "./llmProviders/workersAI";
 import { deepInfraTransformer } from "./llmProviders/deepInfra";
+import { openRouterTransformer } from "./llmProviders/openRouter";
 
 
 export interface StreamTransformer {
@@ -12,8 +13,9 @@ export async function createCacheableStream(
     originalStream: ReadableStream,
     url: string,
     env: Env,
-    llmProvider: 'workersAI' | 'deepInfra'
+    llmProvider: 'workersAI' | 'deepInfra' | 'openRouter'
 ) {
+    const transformer = getTransformer(llmProvider);
     let completeResponse = '';
     let buffer = '';
 
@@ -27,6 +29,12 @@ export async function createCacheableStream(
           const trimmedLine = line.trim();
           if (!trimmedLine) continue;
 
+          const isOpenRouterProcessing = llmProvider === 'openRouter' && trimmedLine.startsWith(': OPENROUTER PROCESSING');
+          if (isOpenRouterProcessing) {
+            buffer = '';
+            continue
+          }
+
           const isCompleteChunk = trimmedLine.startsWith('data: ') && trimmedLine.endsWith('}');
           if (!isCompleteChunk) continue;
 
@@ -36,7 +44,6 @@ export async function createCacheableStream(
           const invalidJsonStrings = ['[DONE]', '']
           if (!jsonStr || invalidJsonStrings.includes(jsonStr)) continue;
 
-          const transformer = getTransformer(llmProvider);
           const normalizedText = transformer.transformChunk(jsonStr);
           if (!normalizedText) continue;
         
@@ -53,12 +60,14 @@ export async function createCacheableStream(
     return originalStream.pipeThrough(transformStream);
 }
 
-function getTransformer(llmProvider: 'workersAI' | 'deepInfra'): StreamTransformer {
+function getTransformer(llmProvider: 'workersAI' | 'deepInfra' | 'openRouter'): StreamTransformer {
     switch (llmProvider) {
         case 'workersAI':
             return workersAITransformer;
         case 'deepInfra':
             return deepInfraTransformer;
+        case 'openRouter':
+            return openRouterTransformer; 
         default:
             throw new Error(`Invalid LLM provider: ${llmProvider}`);
     }

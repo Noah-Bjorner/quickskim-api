@@ -19,4 +19,5 @@ interface Env {
 	PUBLIC_API_KEY_V1: string;
 	OPENAI_API_KEY: string;
 	DEEPINFRA_QUICKSKIM_API_KEY_V1: string;
+	OPENROUTER_API_KEY: string;
   }

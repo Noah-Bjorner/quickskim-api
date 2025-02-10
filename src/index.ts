@@ -54,7 +54,7 @@ app.post('/v1/article', async (c) => {
 			logEventName: 'article_response',
 			generateFunction: generateArticleQuickSkim,
 			getContent: undefined,
-			llmProvider: 'deepInfra'
+			llmProvider: 'openRouter'
 		});
 	} catch {
 		return c.json({ error: 'article_response_unexpect_error' }, 500);
@@ -71,12 +71,13 @@ app.post('/v1/youtube', async (c) => {
 			logEventName: 'youtube_response',
 			generateFunction: generateYouTubeQuickSkim,
 			getContent: getCaptions,
-			llmProvider: 'deepInfra'
+			llmProvider: 'openRouter'
 		});
 	} catch {
 		return c.json({ error: 'youtube_response_unexpect_error' }, 500);
 	}
 });
+
 
 export default app
 

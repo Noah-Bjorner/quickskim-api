@@ -5,14 +5,17 @@ import { QuickSkimParams } from "./ai";
 import { GetContentParams } from "./youtube";
 import { createCacheableStream } from "./stream";
 
+
+
 interface QuickSkimRequestParams {
     url: string;
     text?: string;
     logEventName: string;
     generateFunction: (params: QuickSkimParams) => Promise<ReadableStream>;
     getContent?: (params: GetContentParams) => Promise<string>;
-    llmProvider: 'workersAI' | 'deepInfra';
+    llmProvider: 'workersAI' | 'deepInfra' | 'openRouter';
 }
+
 
 export async function handleQuickSkimRequest(c: Context, params: QuickSkimRequestParams): Promise<Response> {
     const { url, text, logEventName, generateFunction, getContent, llmProvider } = params;
@@ -48,3 +51,4 @@ export async function handleQuickSkimRequest(c: Context, params: QuickSkimReques
       return c.json({ error: `Failed to process ${logEventName}` }, 500);
     }
   }
+
