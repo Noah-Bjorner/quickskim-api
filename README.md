@@ -1,6 +1,6 @@
 # QuickSkim API
 
-QuickSkim simplifies online reading by delivering instant summaries and clear breakdowns of any article and video with a single click.
+QuickSkim delivers instant AI-powered summaries and key insights from any article or video with a single click. This open-source API powers the QuickSkim browser extension.
 
 📌 **Use For Free:** [Chrome Web Store](https://xxx)
 
