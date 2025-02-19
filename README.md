@@ -9,7 +9,7 @@ QuickSkim delivers instant AI-powered summaries and key insights from any articl
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
 ![Cloudflare](https://img.shields.io/badge/Cloudflare-FF7300?logo=cloudflare&logoColor=white)
 
-![QuickSkim Simulator in action](https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExenJ1NjdqbzVzM25oczM2OW11enVpNHRndjZrbnFraTNtbWd3cDFzeiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/cOILlKqLpYFZ8LP6hy/giphy.gif)
+![QuickSkim Simulator in action](https://static.noahbjorner.com/random/gs-gif-ezgif.com-video-to-webp-converter.webp)
 
 ✅ Instant Insight: Skim any article or video in seconds.<br>
 ✅ Completely Free: No fees, no accounts—just install and go.
