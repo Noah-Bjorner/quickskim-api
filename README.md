@@ -2,7 +2,7 @@
 
 QuickSkim delivers instant AI-powered summaries and key insights from any article or video with a single click. This open-source API powers the QuickSkim browser extension.
 
-📌 **Use For Free:** [Chrome Web Store](https://xxx)
+📌 **Use For Free:** [Chrome Web Store](https://chromewebstore.google.com/detail/quickskim/pjekpelhflglechjnpnlfcnoookmpofh)
 
 ![API Status](https://img.shields.io/badge/API-Live-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
